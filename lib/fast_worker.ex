@@ -10,7 +10,7 @@ defmodule FastWorker do
   #   max_fails: (num)
   # ]
   def start_link(listener, opts \\ []) do
-    GenServer.start_link(__MODULE__, [listener, Enum.into(opts, %{})])
+    GenServer.start_link(__MODULE__, { listener, opts |> Enum.into(%{}) })
   end
 
   def add_task(server_pid, fun) when is_function(fun) do
@@ -22,7 +22,7 @@ defmodule FastWorker do
   end
 
   def do_work(server_pid) when is_pid(server_pid) do
-    GenServer.cast(server_pid, :do_work)
+    state = GenServer.call(server_pid, :do_work)
   end
 
   def get_state(server_pid) when is_pid(server_pid) do
@@ -30,7 +30,7 @@ defmodule FastWorker do
   end
 
   # Server callbacks
-  def init([listener | opts]) do
+  def init({ listener, opts }) do
     Process.flag(:trap_exit, true)
     {
       :ok,
@@ -60,17 +60,17 @@ defmodule FastWorker do
     { :reply, id, state }
   end
 
-  def handle_cast(:do_work, state) do
-    { :noreply, check_workers(state) }
+  def handle_call(:do_work, state) do
+    state = check_workers(state)
+    { :reply, state, state }
   end
 
-  # Get the value
+  # Return the value in a callback
   def handle_info({ref, value}, state) do
-    # IO.puts "Handle info, value"
-    # IO.inspect ref
-    # IO.inspect value
-    # IO.inspect state
-    { :noreply, state }
+    { id, _task } = Enum.find(state[:active_workers], fn({id, t}) -> t.ref == ref end)
+    GenServer.call(state[:listener], { :worker_finish, id, value })
+    { :noreply,
+      %{  state | active_workers: state[:active_workers] |> Map.delete(id) } }
   end
 
   # General handler
@@ -92,7 +92,6 @@ defmodule FastWorker do
   end
 
   defp check_workers(state) do
-    IO.inspect state
     num_working = state[:active_workers] |> Enum.into([]) |> length()
     num_new_workers = state[:max_workers] - num_working
     new_workers = state[:waiting_workers]
@@ -103,11 +102,10 @@ defmodule FastWorker do
           { fun } ->  Task.async(fun)
           { mod, fun, args } -> Task.async(mod, fun, args)
         end
-        send(state[:listener], { :task_started, id })
+        GenServer.call(state[:listener], { :worker_start, id })
         { id, task }
       end)
     |> Enum.into(%{})
-    IO.inspect state[:waiting_workers]
     %{ state |
       active_workers: state[:active_workers] |> Map.merge(new_workers) ,
       waiting_workers: state[:waiting_workers] -- Map.keys(new_workers)
@@ -116,6 +114,7 @@ defmodule FastWorker do
 
   defp extract_worker_ids(list, upto, accumulator \\[])
   defp extract_worker_ids([id | tail], upto, accumulator)  do
+    IO.puts "Upto value: #{upto}"
     accumulator = [ id | accumulator ]
     if length(accumulator) >= upto, do: extract_worker_ids([], 0, accumulator),
       else: extract_worker_ids(tail, upto, accumulator)
