@@ -23,7 +23,8 @@ erl_crash.dump
 /acme_key
 /keys
 /html
-/ndc-options.yml
+/ad-options.yml
+/certs
 
 # Ignore generated escript
-/ndc
+/ad

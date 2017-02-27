@@ -1,0 +1,9 @@
+version: "2"
+services:
+  acme_docker:
+    build: .
+    volumes:
+      - ./html:/app/html
+      - ./acme_key:/app/acme_key
+      - ./certs:/app/certs
+      - ./ad-options.yml:/app/ad-options.yml

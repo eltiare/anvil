@@ -1,19 +1,6 @@
-# NginxDockerCerts
+# ACME Docker
 
-**TODO: Add description**
-
-## Installation
-
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `nginx_docker_certs` to your list of dependencies in `mix.exs`:
-
-```elixir
-def deps do
-  [{:nginx_docker_certs, "~> 0.1.0"}]
-end
-```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/nginx_docker_certs](https://hexdocs.pm/nginx_docker_certs).
-
+This is a proof of concept Acme client written in Elixir for integration with Docker.
+Browse the source code for ideas - but there are no tests, no guarantees, and it's
+not complete. APIs are most certainly going to change, and it may not even work
+at all. User beware.

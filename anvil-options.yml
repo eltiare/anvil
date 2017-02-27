@@ -1,0 +1,20 @@
+app_key: acme_key/private.key
+api_location: https://acme-staging.api.letsencrypt.org
+html_dir: html
+contacts:
+  - jnicoll@accentuate.me
+auth_wait: 10000
+certificates:
+  - key: certs/server.key
+    certificate: certs/server.crt
+    ssl_config: openssl.cnf
+    country: US
+    state: UT
+    organization: Accentuate.Me LLC
+    email: jnicoll@accentuate.me
+    names:
+      - accentuate.me
+      - www.accentuate.me
+      - git.accentuate.me
+      #- smashingshots.com
+      #- www.smashingshots.com

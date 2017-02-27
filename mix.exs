@@ -3,13 +3,14 @@ defmodule NginxDockerCerts.Mixfile do
 
   def project do
     [
-      app: :nginx_docker_certs,
+      app: :anvil,
       version: "0.1.0",
       elixir: "~> 1.4",
       build_embedded: Mix.env == :prod,
       start_permanent: Mix.env == :prod,
       deps: deps(),
-      escript: [ main_module: NginxDockerCerts, name: "ndc" ]
+      mod: { Anvil, [] },
+      escript: [ main_module: Anvil, name: "anvil" ]
     ]
   end
 
@@ -19,8 +20,8 @@ defmodule NginxDockerCerts.Mixfile do
   def application do
     # Specify extra applications you'll use from Erlang/Elixir
     [
-      applications: [ :httpoison ]
-      # extra_applications: [ :logger ]
+      applications: [ :httpoison, :yaml_elixir, :crypto, :porcelain ],
+      extra_applications: [ :logger ]
     ]
   end
 
@@ -37,6 +38,8 @@ defmodule NginxDockerCerts.Mixfile do
     [
       { :httpoison, "~> 0.10.0" },      # HTTP library
       { :json, "~> 1.0" },              # JSON parser
+      { :yaml_elixir, "~> 1.3.0" },     # YAML parser
+      { :porcelain, "~> 2.0" }          # Happier dealings with command line
     ]
   end
 end
